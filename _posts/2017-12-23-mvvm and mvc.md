@@ -2,7 +2,6 @@
 layout: post
 title: mvvm和mvc的区别
 tags: 框架
-stickie: true
 ---
 
 欢迎来到Leo Valiant前端技术分享博客!<br>这篇文章意在帮大家区分MVVM和MVC框架，mvvm框架的由来，mvvm框架vue的介绍。
