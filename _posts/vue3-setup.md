@@ -1,0 +1,172 @@
+vue3 学习笔记 (五)——vue3 的 setup 如何实现响应式功能？
+setup 是用来写组合式 api ，内部的数据和方法需要通过 return 之后，模板才能使用。在之前 vue2 中，data 返回的数据，可以直接进行双向绑定使用，如果我们把 setup 中数据类型直接双向绑定，发现变量并不能实时响应。接下来就看看setup如何实现data的响应式功能？
+
+一、ref
+setup 内的自定义属性不具备响应式能力，所以引入了 ref ，ref 底层通过代理，把属性包装值包装成一个 proxy ，proxy 内部是一个对象，使得基础类型的数据具备响应式能力，使用之前必须引入。
+
+示例1：ref 使用
+
+<template>
+ <div>
+  <input type="text" v-model="mood">
+  {{mood}}
+ </div>
+</template>
+<script>
+import { ref } from "vue"
+export default{
+ setup(){
+  let mood = ref("此时心情好差呀！")
+  setTimeout(()=>{
+   mood.value = "心情要变的像人一样美"
+  },3000)
+  return{
+   mood
+  }
+ }
+}
+</script>
+此时可以在 setup 模板内任意编辑 mood，可以保证实时响应。实例在修改 mood 的值加了 value ，是因为 ref 的工作原来：
+
+let mood = ref("此时心情好差呀！")
+
+修改成 ：let mood = proxy({value:"此时心情好差呀！"})
+
+二、reactive
+上述的 ref 让基础数据类型具备了响应式，但是如果我们换成引用类型的数据，就会失效。所以引入了 reactive。
+
+reactive 通过底层包装，将引用类型数据包装到 proxy 内，使用原理如：
+
+let me = reactive({
+ single:true,
+ want:"暖的像火炉的暖男"
+})
+ 
+// 运行结果为
+let me = proxy : { single: true, want:"暖的像火炉的暖男" }
+引用的时候，直接使用 me.want 就可以了。
+
+示例2：reactive 使用
+
+<template>
+ <div>
+  {{me.want}}
+ </div>
+</template>
+<script>
+import { ref , reactive } from "vue"
+export default{
+ setup(){
+  let me = reactive({
+   single:true,
+   want:"暖的像火炉的暖男"
+  })
+  setTimeout(()=>{
+   me.want = "夏天容易化了"
+  },3000)
+  return{
+   me
+  }
+ }
+}
+</script>
+通过 setup + ref + reactive 就可以完全实现 vue2 中 data 的响应式功能，所以 setup 完全可以替换掉 data。
+
+三、toRefs 、toRef 应用
+setup + ref + reactive 实现了数据响应式，不能使用 ES6 解构，会消除响应特性。所以需要 toRefs 解构，使用时，需要先引入。
+
+它的工作原理为：
+
+import { ref , reactive, toRefs } from "vue"
+let me = reactive({
+ single:true,
+ want:"暖的像火炉的暖男"
+})
+//运行为
+let me = proxy : { single: true, want:"暖的像火炉的暖男" }
+ 
+const { single, want } = toRefs( me )
+// 运行为
+single : proxy({ value:true })
+want : proxy({ value:"暖的像火炉的暖男" })
+toRefs 把 single 和 want 解构成两个 proxy ，所以是响应式的。
+
+示例3：toRefs 解构数据
+
+<template>
+ <div>
+  {{want}}
+  <input type="text" v-model="want">
+ </div>
+</template>
+<script>
+import { ref , reactive, toRefs } from "vue"
+export default{
+ setup(){
+  let me = reactive({
+   single:true,
+   want:"暖的像火炉的暖男"
+  })
+  setTimeout(()=>{
+   me.want = "夏天容易化了"
+  },3000)
+  // 解构
+  const {single,want} = toRefs(me)
+   return{
+    single,
+    want
+   }
+  }
+}
+</script>
+toRef作用：将对象某一个属性，作为引用返回。比较难理解，可以打印查看下结果更容易理解。
+
+let me = reactive({
+ single:true,
+ want:"暖的像火炉的暖男"
+})
+let lv = toRef( me, 'love' )
+console.log('love',love);
+//打印结果
+ObjectRefImpl {
+ __v_isRef: true
+ _key: "love"
+ _object: Proxy {single: true, want: "暖的像火炉的暖男"}
+ value: undefined
+ [[Prototype]]: Object
+}
+toRef 是组件之间进行传值值，对可选参数进行处理，运行时，先查看 me中是否存在 love ，如果存在时就继承 me 中的 love ，如果不存在时就创建一个 love ，然后解构赋值给变量 lv。
+
+示例4：toRef 使用
+
+<template>
+ <div>
+  {{want}}
+ <input type="text" v-model="want">
+</div>
+</template>
+<script>
+import { ref , reactive, toRefs, toRef } from "vue"
+export default{
+ setup(){
+  let me = reactive({
+   single:true,
+   want:"暖的像火炉的暖男"
+  })
+ setTimeout(()=>{
+  me.want = "夏天容易化了"
+ },3000)
+ const {single,want } = toRefs(me)
+ const love = toRef(me,'love')
+ console.log('love',love);
+ return{
+  single,
+  want
+  }
+ }
+}
+</script>
+四、总结
+ref 让基础数据类型具备响应式，而 reactive 让引用类型的数据具备响应式。setup + ref + reactive 完全实现 vue2 中 data 响应式功能。
+
+toRefs 解构 reactive 包装的数据，toRef 用于对可选参数。
