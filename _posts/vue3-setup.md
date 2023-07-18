@@ -1,3 +1,9 @@
+---
+layout: post
+title: vue3 学习笔记 (五)——vue3 的 setup 如何实现响应式功能？
+tags: 框架
+---
+
 vue3 学习笔记 (五)——vue3 的 setup 如何实现响应式功能？
 setup 是用来写组合式 api ，内部的数据和方法需要通过 return 之后，模板才能使用。在之前 vue2 中，data 返回的数据，可以直接进行双向绑定使用，如果我们把 setup 中数据类型直接双向绑定，发现变量并不能实时响应。接下来就看看setup如何实现data的响应式功能？
 
