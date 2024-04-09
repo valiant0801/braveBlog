@@ -5,12 +5,6 @@ tags: 技术
 ---
 <template>
   <div class="upload-wrap" ref="uploadr">
-    <!--  
-      :auto-upload="false"
-    :on-change="changeUpload"
-    class="upload-demo"-->
-    <!-- <span>上传进度：{{ total | totalText }}%</span> -->
-    <!-- <span>网速：{{internetSpeed }}</span> -->
     <el-popover
       placement="top-end"
       title="传输列表"
@@ -144,11 +138,6 @@ tags: 技术
         >传输列表</el-button
       >
     </el-popover>
-
-    <!-- <el-button type="text" v-if="total > 0 && total < 100" @click="handleBtn">{{
-      btn | btnText
-    }}</el-button> -->
-
     <el-upload
       class="upload-demo"
       ref="adModel"
@@ -165,11 +154,8 @@ tags: 技术
     </el-upload>
   </div>
 </template>
-
 <script>
 import SparkMD5 from "spark-md5";
-
-// import { fileUpload } from "@/api/filestorage/index.js";
 import {
   upLoadFile,
   breakpointUpLoadFile,
@@ -177,7 +163,6 @@ import {
   breakpointGetKey,
 } from "@/api/filestorage/index";
 import { fileParse } from "@/utils/parseFile";
-
 import { getCookie } from "@/utils/cookies";
 import { paramSeparator } from "../el-data-table/utils/query";
 export default {
