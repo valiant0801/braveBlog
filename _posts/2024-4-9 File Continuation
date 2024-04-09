@@ -1,3 +1,8 @@
+---
+layout: post
+title: 多文件断点上传
+tags: 技术
+---
 ```html
 <template>
   <div class="upload-wrap" ref="uploadr">
