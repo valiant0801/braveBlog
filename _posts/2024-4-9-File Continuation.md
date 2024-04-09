@@ -1,6 +1,6 @@
 ---
 layout: post
-title: 多文件断点上传
+title: 多文件断点续传
 tags: 技术
 ---
 [[parseFile]]
